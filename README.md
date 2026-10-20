@@ -10,36 +10,32 @@
 - **Responsibilities**: Create empty.c, an empty program, and part1.c with 5 system calls. Run strace on both in a unix environment.
 - **Assigned to**: Devan Erle
 
-### Part 2: Environment Variables
+### Part 2: Kernel-Timer Module
 - **Responsibilities**: 
 - **Assigned to**: 
 
-### Part 3: Tilde Expansion
+### Part 3A: Adding System Calls
 - **Responsibilities**: 
 - **Assigned to**: 
 
-### Part 4: $PATH Search
+### Part 3B: Kernel Compilation
 - **Responsibilities**: 
 - **Assigned to**: 
 
-### Part 5: External Command Execution
+### Part 3C: Threads
 - **Responsibilities**: 
 - **Assigned to**: 
 
-### Part 6: I/O Redirection
+### Part 3D: Linked List
 - **Responsibilities**: 
 - **Assigned to**: 
 
-### Part 7: Piping
+### Part 3E: Mutexes
 - **Responsibilities**:
 - **Assigned to**:
 
-### Part 8: Background Processing
+### Part 3F: Scheduling Algorithm
 - **Responsibilities**:
-- **Assigned to**: 
-
-### Part 9: Internal Command Execution
-- **Responsibilities**: 
 - **Assigned to**: 
 
 ## File Listing
@@ -81,7 +77,7 @@ This will run the program. -->
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
-| XXXX-XX-XX | [item]  |
+| 2026-10-20 | [Finished part 1 (strace), formatted README]  |
 
 ### [Travern Martini]
 
