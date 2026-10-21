@@ -78,6 +78,7 @@ This will run the program. -->
 | Date       | Work Completed / Notes |
 |------------|------------------------|
 | 2026-10-20 | [Finished part 1 (strace), formatted README]  |
+| 2026-10-21 | [Set up own virtual environment for rest of proj, added example .c and Makefile for part2]  |
 
 ### [Travern Martini]
 
