@@ -48,6 +48,10 @@ COP4610-Project2/
 │ ├── part1.c
 │ └── part1.trace
 │
+├── part2/
+│ ├── Makefile
+│ └── my_timer.c
+│
 └── README.md
 ```
 <!-- ## How to Compile & Execute
