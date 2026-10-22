@@ -40,6 +40,7 @@ static int __init timer_init(void)
     return 0;
 }
 
+// Exit called when module is unloaded
 static void __exit timer_exit(void)
 {
     proc_remove(timer_entry);
