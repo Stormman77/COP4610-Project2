@@ -11,8 +11,8 @@
 - **Assigned to**: Devan Erle
 
 ### Part 2: Kernel-Timer Module
-- **Responsibilities**: 
-- **Assigned to**: 
+- **Responsibilities**: Implement a custom kernel module that creates the file /proc/timer. When this file is read from, get the time with ktime_get_real_ts64(), and print the elapsed time since the last read call. Delete the file /proc/timer when unloaded.
+- **Assigned to**: Devan Erle
 
 ### Part 3A: Adding System Calls
 - **Responsibilities**: 
@@ -78,7 +78,7 @@ This will run the program. -->
 | Date       | Work Completed / Notes |
 |------------|------------------------|
 | 2026-10-20 | [Finished part 1 (strace), formatted README]  |
-| 2026-10-21 | [Set up own virtual environment for rest of proj, added example .c and Makefile for part2]  |
+| 2026-10-22 | [Implemented kernel timer module in part 2, still need to revise]  |
 
 ### [Travern Martini]
 
