@@ -83,6 +83,7 @@ This will run the program. -->
 |------------|------------------------|
 | 2026-10-20 | [Finished part 1 (strace), formatted README]  |
 | 2026-10-22 | [Implemented kernel timer module in part 2, still need to revise]  |
+| 2026-10-27 | [Cleaned up part 2 code, encountered bug]  |
 
 ### [Travern Martini]
 
@@ -108,6 +109,6 @@ Document in-person meetings, their purpose, and what was discussed.
 
 
 ## Bugs
-- **Bug 1**:
+- **Bug 1**: Issue with static variable flag "first_read" in part 2
 - **Bug 2**: 
 - **Bug 3**: 
