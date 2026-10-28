@@ -83,7 +83,8 @@ This will run the program. -->
 |------------|------------------------|
 | 2026-10-20 | [Finished part 1 (strace), formatted README]  |
 | 2026-10-22 | [Implemented kernel timer module in part 2, still need to revise]  |
-| 2026-10-27 | [Cleaned up part 2 code, encountered bug]  |
+| 2026-10-27 | [Cleaned up code, issue with part2 now exists where first_read flag is ignored]  |
+| 2026-10-28 | [Debugged part 2, found out it was an issue with the return val: proc read executes until return val is 0]  |
 
 ### [Travern Martini]
 
