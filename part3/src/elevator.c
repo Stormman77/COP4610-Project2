@@ -310,10 +310,50 @@ static int load_pets(void)
    return loaded;
 }
 
+// LOOK scheduling: keep going in the current direction while there is work that way,
+// otherwise turn around. Caller must hold elevator_lock.
+// Returns UP, DOWN, or IDLE when there is nothing to do anywhere.
+static States choose_direction(void)
+{
+   bool work_above = false;
+   bool work_below = false;
+   int cur_floor = elevator.current_floor; // Note: "current" is a reserved kernel macro
+   Pet *pet;
+
+   // Work 1: destinations of pets on board
+   list_for_each_entry(pet, &elevator.pets_on_elevator, list)
+   {
+      if (pet->destination_floor > cur_floor)
+         work_above = true;
+      else if (pet->destination_floor < cur_floor)
+         work_below = true;
+   }
+
+   // Work 2: floors with pets waiting (ignored while stopping: no new pickups)
+   if (!elevator.should_stop)
+   {
+      for (int i = 0; i < NUM_FLOORS; i++)
+      {
+         if (floors[i].num_pets_waiting == 0)
+            continue;
+         if (i + 1 > cur_floor)
+            work_above = true;
+         else if (i + 1 < cur_floor)
+            work_below = true;
+      }
+   }
+
+   // Prefer the direction we're already going
+   if (direction == UP)
+      return work_above ? UP : (work_below ? DOWN : IDLE);
+   return work_below ? DOWN : (work_above ? UP : IDLE);
+}
+
 //elevator kthread
 static int elevator_run(void *data)
 {
    int changed;
+   States next;
 
    while (!kthread_should_stop())
    {
@@ -339,10 +379,26 @@ static int elevator_run(void *data)
          continue;
       }
 
-      // TODO (step C): choose direction and move. For now, just wait here.
-      elevator.state = IDLE;
+      // TODO (step D): finish stopping here once the elevator is empty
+
+      next = choose_direction();
+      if (next == IDLE)
+      { // Nothing to do anywhere: wait on this floor
+         elevator.state = IDLE;
+         mutex_unlock(&elevator_lock);
+         msleep(100);
+         continue;
+      }
+
+      // Travel one floor: takes 2 seconds
+      direction = next;
+      elevator.state = next;
       mutex_unlock(&elevator_lock);
-      msleep(100);
+      ssleep(2);
+
+      mutex_lock(&elevator_lock);
+      elevator.current_floor += (direction == UP) ? 1 : -1;
+      mutex_unlock(&elevator_lock);
    }
    return 0;
 }
