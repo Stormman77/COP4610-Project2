@@ -4,7 +4,10 @@
 #include <linux/proc_fs.h>
 #include <linux/list.h>
 #include <linux/mutex.h>
-
+#include <linux/kthread.h>
+#include <linux/delay.h>
+#include <linux/slab.h>
+#include <linux/uaccess.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Group 22");
@@ -87,7 +90,9 @@ static Elevator elevator;
 static Floor floors[NUM_FLOORS];
 static int total_pets_serviced = 0;
 static int num_pets_waiting = 0;
-
+//elevator kthread, and the direction it's traveling (UP or DOWN) for LOOK
+static struct task_struct *elevator_thread;
+static States direction = UP;
 
 // Procfile stuff
 static struct proc_dir_entry *elevator_entry;
@@ -256,13 +261,34 @@ static const struct proc_ops elevator_fops = {
    .proc_read = elevator_read
 };
 
+//elevator kthread
+static int elevator_run(void *data)
+{
+   while (!kthread_should_stop())
+   {
+      mutex_lock(&elevator_lock);
+
+      if (elevator.state == OFFLINE)
+      { // Not running: nap briefly, then check again
+         mutex_unlock(&elevator_lock);
+         msleep(100);
+         continue;
+      }
+
+      // TODO (steps B-D): unload/load, choose direction, move
+
+      mutex_unlock(&elevator_lock);
+      ssleep(1); // Never sleep while holding the lock
+   }
+   return 0;
+}
 
 // Open elevator
 static int __init init_elevator(void)
 {
    // Initialize elevator
    elevator.state = OFFLINE;
-   elevator.current_floor = 0;
+   elevator.current_floor = 1;
    elevator.num_pets = 0;
    elevator.current_weight = 0;
    elevator.should_stop = false;
@@ -283,6 +309,13 @@ static int __init init_elevator(void)
        return -ENOMEM;
    }
 
+   // Start the elevator thread
+   elevator_thread = kthread_run(elevator_run, NULL, "elevator_thread");
+   if (IS_ERR(elevator_thread))
+   {
+      proc_remove(elevator_entry);
+      return PTR_ERR(elevator_thread);
+   }
 
    // Set syscall function pointers
    STUB_start_elevator = start_elevator;
@@ -297,15 +330,24 @@ static int __init init_elevator(void)
 // Close elevator
 static void __exit exit_elevator(void)
 {
-   // Clean up lists
    Pet *pet, *dummy;
+
+   // 1. Disconnect syscalls so no new requests come in
+   STUB_start_elevator = NULL;
+   STUB_issue_request = NULL;
+   STUB_stop_elevator = NULL;
+
+   // 2. Stop the thread (waits until it actually exits)
+   kthread_stop(elevator_thread);
+
+   // 3. Free all pets: safe now, nothing else touches the lists
    mutex_lock(&elevator_lock);
    list_for_each_entry_safe(pet, dummy, &elevator.pets_on_elevator, list)
    {
       list_del(&pet->list);
       kfree(pet);
    }
-   for(int i = 0; i < NUM_FLOORS; i++)
+   for (int i = 0; i < NUM_FLOORS; i++)
    {
       list_for_each_entry_safe(pet, dummy, &floors[i].pets_waiting, list)
       {
@@ -315,13 +357,8 @@ static void __exit exit_elevator(void)
    }
    mutex_unlock(&elevator_lock);
 
-   // Remove procfile
+   // 4. Remove procfile
    proc_remove(elevator_entry);
-
-   // Set function pointers to null
-   STUB_start_elevator = NULL;
-   STUB_issue_request = NULL;
-   STUB_stop_elevator = NULL;
 }
 
 
