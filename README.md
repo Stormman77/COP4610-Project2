@@ -27,12 +27,12 @@
 - **Assigned to**: 
 
 ### Part 3D: Linked List
-- **Responsibilities**: 
-- **Assigned to**: 
+- **Responsibilities**: Use implementation of linux/list.h to keep track of pets on each floor and in elevator.
+- **Assigned to**: Devan Erle
 
 ### Part 3E: Mutexes
-- **Responsibilities**:
-- **Assigned to**:
+- **Responsibilities**: Use implementation of linux/mutex.h to protect shared resources between threads
+- **Assigned to**: Devan Erle
 
 ### Part 3F: Scheduling Algorithm
 - **Responsibilities**:
@@ -85,6 +85,8 @@ This will run the program. -->
 | 2026-10-22 | [Implemented kernel timer module in part 2, still need to revise]  |
 | 2026-10-27 | [Cleaned up code, issue with part2 now exists where first_read flag is ignored]  |
 | 2026-10-28 | [Debugged part 2, found out it was an issue with the return val: proc read executes until return val is 0]  |
+| 2026-10-29 | [Began work on elevator.c]  |
+| 2026-10-30 | [Implemented syscalls from syscalls.c in the elevator.c program and their consumer/producer operations, as well as procfile reads, linked list, mutex, elevator module structure and exit function with cleanup. Should be able to pick up proj and continue in any direction.]  |
 
 ### [Travern Martini]
 

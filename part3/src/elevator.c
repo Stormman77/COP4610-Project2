@@ -297,7 +297,28 @@ static int __init init_elevator(void)
 // Close elevator
 static void __exit exit_elevator(void)
 {
+   // Clean up lists
+   Pet *pet, *dummy;
+   mutex_lock(&elevator_lock);
+   list_for_each_entry_safe(pet, dummy, &elevator.pets_on_elevator, list)
+   {
+      list_del(&pet->list);
+      kfree(pet);
+   }
+   for(int i = 0; i < NUM_FLOORS; i++)
+   {
+      list_for_each_entry_safe(pet, dummy, &floors[i].pets_waiting, list)
+      {
+         list_del(&pet->list);
+         kfree(pet);
+      }
+   }
+   mutex_unlock(&elevator_lock);
+
+   // Remove procfile
    proc_remove(elevator_entry);
+
+   // Set function pointers to null
    STUB_start_elevator = NULL;
    STUB_issue_request = NULL;
    STUB_stop_elevator = NULL;
