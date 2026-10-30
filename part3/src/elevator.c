@@ -261,9 +261,60 @@ static const struct proc_ops elevator_fops = {
    .proc_read = elevator_read
 };
 
+// Unload every pet whose destination is the current floor.
+// Caller must hold elevator_lock. Returns the number of pets unloaded.
+static int unload_pets(void)
+{
+   Pet *pet, *dummy;
+   int unloaded = 0;
+
+   list_for_each_entry_safe(pet, dummy, &elevator.pets_on_elevator, list)
+   {
+      if (pet->destination_floor == elevator.current_floor)
+      {
+         list_del(&pet->list);
+         elevator.num_pets--;
+         elevator.current_weight -= pet_weights[pet->type];
+         total_pets_serviced++;
+         kfree(pet); // Pet has arrived, free its memory
+         unloaded++;
+      }
+   }
+   return unloaded;
+}
+
+// Load waiting pets from the current floor in FIFO order while they fit.
+// Caller must hold elevator_lock. Returns the number of pets loaded.
+static int load_pets(void)
+{
+   Floor *floor = &floors[elevator.current_floor - 1];
+   Pet *pet, *dummy;
+   int loaded = 0;
+
+   list_for_each_entry_safe(pet, dummy, &floor->pets_waiting, list)
+   {
+      int weight = pet_weights[pet->type];
+
+      // Front pet doesn't fit, implements FIFO
+      if (elevator.num_pets >= MAX_CAPACITY ||
+          elevator.current_weight + weight > MAX_WEIGHT)
+         break;
+
+      list_move_tail(&pet->list, &elevator.pets_on_elevator); //floor -> elevator
+      floor->num_pets_waiting--;
+      num_pets_waiting--;
+      elevator.num_pets++;
+      elevator.current_weight += weight;
+      loaded++;
+   }
+   return loaded;
+}
+
 //elevator kthread
 static int elevator_run(void *data)
 {
+   int changed;
+
    while (!kthread_should_stop())
    {
       mutex_lock(&elevator_lock);
@@ -275,10 +326,23 @@ static int elevator_run(void *data)
          continue;
       }
 
-      // TODO (steps B-D): unload/load, choose direction, move
+      // Drop off pets for this floor, then pick up waiting pets (not while stopping)
+      changed = unload_pets();
+      if (!elevator.should_stop)
+         changed += load_pets();
 
+      if (changed > 0)
+      { // Someone got on or off: loading takes 1 second
+         elevator.state = LOADING;
+         mutex_unlock(&elevator_lock);
+         ssleep(1); // Never sleep while holding the lock
+         continue;
+      }
+
+      // TODO (step C): choose direction and move. For now, just wait here.
+      elevator.state = IDLE;
       mutex_unlock(&elevator_lock);
-      ssleep(1); // Never sleep while holding the lock
+      msleep(100);
    }
    return 0;
 }
