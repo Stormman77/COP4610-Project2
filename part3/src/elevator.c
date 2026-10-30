@@ -91,7 +91,7 @@ static int num_pets_waiting = 0;
 
 // Procfile stuff
 static struct proc_dir_entry *elevator_entry;
-static char msg[256];
+static char msg[BUFF_LEN];
 static size_t msg_len;
 
 
