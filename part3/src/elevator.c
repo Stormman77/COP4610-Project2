@@ -144,11 +144,13 @@ static char get_pet_char(int type)
 int start_elevator(void)
 {
    mutex_lock(&elevator_lock);
-   // Set up elevator state
-   elevator.current_floor = 1;
+   if (elevator.state != OFFLINE){
+      mutex_unlock(&elevator_lock);
+      return 1; //already active
+   }
    elevator.state = IDLE;
    mutex_unlock(&elevator_lock);
-   return 0;
+   return 0; //success
 }
 
 
@@ -181,15 +183,14 @@ int issue_request(int start_floor, int destination_floor, int type) {
 
 
 // System call wrapper
-// Called when elevator should stop at next floor in scheduling algorithm
 int stop_elevator(void) {
    mutex_lock(&elevator_lock);
-   if (elevator.should_stop || elevator.state == OFFLINE)
-   { // Elevator is already stopping OR elevator is offline, shouldn't set flag
+   if (elevator.should_stop)
+   { //stop in progress
        mutex_unlock(&elevator_lock);
        return 1;
    }
-   elevator.should_stop = true;
+   if(elevator.state != OFFLINE) elevator.should_stop = true;
    mutex_unlock(&elevator_lock);
    return 0;
 }
@@ -379,7 +380,12 @@ static int elevator_run(void *data)
          continue;
       }
 
-      // TODO (step D): finish stopping here once the elevator is empty
+      if(elevator.should_stop && elevator.num_pets == 0){
+         elevator.state = OFFLINE;
+         elevator.should_stop = false;
+         mutex_unlock(&elevator_lock);
+         continue;
+      }
 
       next = choose_direction();
       if (next == IDLE)
