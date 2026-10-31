@@ -253,7 +253,7 @@ static ssize_t elevator_read(struct file* file, char *ubtf, size_t count, loff_t
 
    // mutex_unlock(&elevator_lock);
 
-
+   //copy out while still holding the lock to avoid msg overwrites mid-copy
    if (count < len)
    {
        len = 0;
@@ -277,8 +277,7 @@ static const struct proc_ops elevator_fops = {
    .proc_read = elevator_read
 };
 
-// Unload every pet whose destination is the current floor.
-// Caller must hold elevator_lock. Returns the number of pets unloaded.
+// Unloading pets; caller must hold elevator_lock. Returns the number of pets unloaded.
 static int unload_pets(void)
 {
    Pet *pet, *dummy;
@@ -292,15 +291,15 @@ static int unload_pets(void)
          elevator.num_pets--;
          elevator.current_weight -= pet_weights[pet->type];
          total_pets_serviced++;
-         kfree(pet); // Pet has arrived, free its memory
+         kfree(pet); // freeing pet's memory after arrival
          unloaded++;
       }
    }
    return unloaded;
 }
 
-// Load waiting pets from the current floor in FIFO order while they fit.
-// Caller must hold elevator_lock. Returns the number of pets loaded.
+// Loading waiting pets from the current floor in FIFO order while they fit.
+// caller must hold elevator_lock. Returns the number of pets loaded.
 static int load_pets(void)
 {
    Floor *floor = &floors[elevator.current_floor - 1];
@@ -333,10 +332,10 @@ static States choose_direction(void)
 {
    bool work_above = false;
    bool work_below = false;
-   int cur_floor = elevator.current_floor; // Note: "current" is a reserved kernel macro
+   int cur_floor = elevator.current_floor;
    Pet *pet;
 
-   // Work 1: destinations of pets on board
+   //1. destinations of pets on board
    list_for_each_entry(pet, &elevator.pets_on_elevator, list)
    {
       if (pet->destination_floor > cur_floor)
@@ -345,7 +344,7 @@ static States choose_direction(void)
          work_below = true;
    }
 
-   // Work 2: floors with pets waiting (ignored while stopping: no new pickups)
+   //2. floors with pets waiting (ignored while stopping, no new pickups)
    if (!elevator.should_stop)
    {
       for (int i = 0; i < NUM_FLOORS; i++)
@@ -359,7 +358,7 @@ static States choose_direction(void)
       }
    }
 
-   // Prefer the direction we're already going
+   //preferring the direction we're already going
    if (direction == UP)
       return work_above ? UP : (work_below ? DOWN : IDLE);
    return work_below ? DOWN : (work_above ? UP : IDLE);
@@ -376,22 +375,22 @@ static int elevator_run(void *data)
       mutex_lock(&elevator_lock);
 
       if (elevator.state == OFFLINE)
-      { // Not running: nap briefly, then check again
+      { //nap briefly, then check again
          mutex_unlock(&elevator_lock);
          msleep(100);
          continue;
       }
 
-      // Drop off pets for this floor, then pick up waiting pets (not while stopping)
+      //dropping off pets for this floor, then pick up waiting pets (not while stopping)
       changed = unload_pets();
       if (!elevator.should_stop)
          changed += load_pets();
 
       if (changed > 0)
-      { // Someone got on or off: loading takes 1 second
+      { //some pet got on or off: loading takes 1 second
          elevator.state = LOADING;
          mutex_unlock(&elevator_lock);
-         ssleep(1); // Never sleep while holding the lock
+         ssleep(1); //never sleep while holding the lock
          continue;
       }
 
@@ -404,14 +403,14 @@ static int elevator_run(void *data)
 
       next = choose_direction();
       if (next == IDLE)
-      { // Nothing to do anywhere: wait on this floor
+      { //nothing to do anywhere: wait on this floor
          elevator.state = IDLE;
          mutex_unlock(&elevator_lock);
          msleep(100);
          continue;
       }
 
-      // Travel one floor: takes 2 seconds
+      //travel one floor: takes 2 seconds
       direction = next;
       elevator.state = next;
       mutex_unlock(&elevator_lock);
@@ -450,7 +449,7 @@ static int __init init_elevator(void)
        return -ENOMEM;
    }
 
-   // Start the elevator thread
+   //starting elevator thread
    elevator_thread = kthread_run(elevator_run, NULL, "elevator_thread");
    if (IS_ERR(elevator_thread))
    {
