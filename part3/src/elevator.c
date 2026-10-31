@@ -97,7 +97,6 @@ static States direction = UP;
 // Procfile stuff
 static struct proc_dir_entry *elevator_entry;
 static char msg[BUFF_LEN];
-static size_t msg_len;
 
 
 
@@ -198,7 +197,7 @@ int stop_elevator(void) {
 
 // Procfile read
 // Display current state of elevator and floors
-static ssize_t elevator_read(struct file* file, char * ubtf, size_t count, loff_t *ppos)
+static ssize_t elevator_read(struct file* file, char *ubtf, size_t count, loff_t *ppos)
 {
    int len = 0;
    Pet *pet;
@@ -213,13 +212,20 @@ static ssize_t elevator_read(struct file* file, char * ubtf, size_t count, loff_
    mutex_lock(&elevator_lock);
 
 
-   len += scnprintf(msg + len, BUFF_LEN - len, "Elevator state: %s\n", get_state_string(elevator.state));
-   len += scnprintf(msg + len, BUFF_LEN - len, "Current floor: %d\nCurrent load: %d\n",
-                                           elevator.current_floor, elevator.current_weight);
+   len += scnprintf(msg + len, BUFF_LEN - len, "Elevator state: %s\n",
+                                          get_state_string(elevator.state));
+   len += scnprintf(msg + len, BUFF_LEN - len, "Current floor: %d\n", 
+                                          elevator.current_floor);
+   len += scnprintf(msg + len, BUFF_LEN - len, "Current load: %d lbs\n",
+                                          elevator.current_weight);
 
-
-   // Todo: output list of pets on elevator before listing pets on each floor
-   // Do once stuff can move in and out of elevator
+   //pets on elevator + desstination floor
+   len += scnprintf(msg + len, BUFF_LEN - len, "Elevator status:");
+   list_for_each_entry(pet, &elevator.pets_on_elevator, list){
+      len += scnprintf(msg + len, BUFF_LEN - len, " %c%d", 
+                                          get_pet_char(pet->type), pet->destination_floor);
+   }
+   len += scnprintf(msg + len, BUFF_LEN - len, "\n\n");
 
 
    // This outputs the pets waiting on each floor
@@ -229,31 +235,40 @@ static ssize_t elevator_read(struct file* file, char * ubtf, size_t count, loff_
                            elevator.current_floor == i+1?'*':' ', i+1, floors[i].num_pets_waiting);
        list_for_each_entry(pet, &floors[i].pets_waiting, list)
        {
-           len += scnprintf(msg + len, BUFF_LEN - len, "%c%d ", get_pet_char(pet->type), pet->destination_floor);
+           len += scnprintf(msg + len, BUFF_LEN - len, "%c%d ", 
+                           get_pet_char(pet->type), pet->destination_floor);
        }
        len += scnprintf(msg + len, BUFF_LEN - len, "\n");
    }
-   len += scnprintf(msg + len, BUFF_LEN - len, "Number of pets: %d\n", elevator.num_pets);
-   len += scnprintf(msg + len, BUFF_LEN - len, "Number of pets waiting: %d\n", num_pets_waiting);
-   len += scnprintf(msg + len, BUFF_LEN - len, "Number of pets serviced: %d\n", total_pets_serviced);
+   len += scnprintf(msg + len, BUFF_LEN - len, "\nNumber of pets: %d\n",
+                        elevator.num_pets);
+   len += scnprintf(msg + len, BUFF_LEN - len, "Number of pets waiting: %d\n",
+                        num_pets_waiting);
+   len += scnprintf(msg + len, BUFF_LEN - len, "Number of pets serviced: %d\n",
+                        total_pets_serviced);
   
-   msg_len = len;
-   *ppos = msg_len;
+   // msg_len = len;
+   // *ppos = msg_len;
 
+
+   // mutex_unlock(&elevator_lock);
+
+
+   if (count < len)
+   {
+       len = 0;
+   }
+   else if (copy_to_user(ubtf, msg, len))
+   {
+       len = -EFAULT;
+   }
 
    mutex_unlock(&elevator_lock);
 
-
-   if (count < msg_len)
-   {
-       return 0;
+   if(len > 0){
+      *ppos = len;
    }
-   if (copy_to_user(ubtf, msg, msg_len))
-   {
-       return -EFAULT;
-   }
-   *ppos = msg_len;
-   return msg_len;
+   return len;
 }
 
 
