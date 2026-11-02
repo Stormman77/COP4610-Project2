@@ -24,7 +24,7 @@
 
 ### Part 3C: Threads
 - **Responsibilities**: 
-- **Assigned to**: 
+- **Assigned to**: Alexey Cherepanov
 
 ### Part 3D: Linked List
 - **Responsibilities**: Use implementation of linux/list.h to keep track of pets on each floor and in elevator.
@@ -36,7 +36,7 @@
 
 ### Part 3F: Scheduling Algorithm
 - **Responsibilities**:
-- **Assigned to**: 
+- **Assigned to**: Alexey Cherepanov
 
 ## File Listing
 ```
