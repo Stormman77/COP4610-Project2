@@ -15,12 +15,12 @@
 - **Assigned to**: Devan Erle
 
 ### Part 3A: Adding System Calls
-- **Responsibilities**: 
-- **Assigned to**: 
+- **Responsibilities**: Create a .C file that defines three new system calls `start_elevator()`, `issue_request()`, and `stop_elevator()`
+- **Assigned to**: Travern Martini
 
 ### Part 3B: Kernel Compilation
-- **Responsibilities**: 
-- **Assigned to**: 
+- **Responsibilities**: Configure the kernel for Linux-6.16.12 with the new system calls. Compile the kernel, and document the steps taken.
+- **Assigned to**: Travern Martini
 
 ### Part 3C: Threads
 - **Responsibilities**: 
@@ -43,6 +43,7 @@
 COP4610-Project2/
 │
 ├── part1/
+│ ├── Makefile
 │ ├── empty.c
 │ ├── empty.trace
 │ ├── part1.c
@@ -52,28 +53,111 @@ COP4610-Project2/
 │ ├── Makefile
 │ └── my_timer.c
 │
+├── part3/
+│ ├── src
+│ │ ├── Makefile
+│ │ └── elevator.c
+│ ├── tests
+│ │ ├── elevator_test
+│ │ │ ├── Makefile
+│ │ │ ├── README.md
+│ │ │ ├── consumer.c
+│ │ │ ├── producer.c
+│ │ │ └── wrappers.h
+│ │ └── system-calls-test
+│ │ │ ├── Makefile
+│ │ │ ├── README.md
+│ │ │ ├── syscheck.c
+│ │ │ ├── test-syscalls.c
+│ │ └─└── test-syscalls.h
+│ ├── Makefile
+│ └── syscalls.c
+│
 └── README.md
 ```
 ## How to Compile & Execute
 
 ### Requirements
 - **Compiler**: gcc
-- **Dependencies**: N/A
+- **Kernel**: Linux-6.16.12, modified to support system calls defined in `/part3/syscalls.c`
+- **Dependencies**: installation/configuration of the commands `make` and `strace`, as well as root access for parts 2 and 3
+
+## Part 1
 
 ### Compilation
 ```bash
 make
 ```
-This will build the executable in /bin
+This will build the executables `empty` and `part1`
 ### Execution
 ```bash
-make run
+make trace
 ```
-OR
+These will create the files `empty.trace` and `part1.trace`, which list the system calls made at the bottom of the files.
+
+## Part 2
+
+### Compilation
 ```bash
-./bin/shell
+make
 ```
-This will run the program.
+This will build the kernel module `my_timer.ko`
+### Execution
+```bash
+sudo insmod my_timer.ko
+```
+This will load the kernel module and create the proc file `timer`.
+```bash
+cat /proc/timer
+```
+This calls the proc file's read function, displaying the current time and the elapsed time since the last read, if applicable.
+```bash
+sudo rmmod my_timer.ko
+```
+This will unload the kernel module and delete the proc file `timer`.
+
+## Part 3
+
+### Compilation
+```bash
+make
+```
+This will build the kernel module with the directory `/src/elevator.ko` and the executables `consumer` and `producer` in the current directory, for easy execution.
+
+### Execution
+This process already assumes the proper installation and compilation of the Linux-6.16.12 kernel, modified to support the system calls seen in syscalls.c. Ensure the machine has booted the proper kernel before proceeding.
+
+```bash
+sudo insmod src/elevator.ko
+```
+This will load the kernel module and create the proc file `elevator`.
+
+In a separate terminal, enter the command
+```bash
+watch -n 1 cat /proc/elevator
+```
+This will begin "watching" the proc file by reading from `/proc/elevator`every second. The elevator can be observed here.
+
+In the original terminal, enter
+```bash
+./producer num
+```
+Where `num` is an arbitrary number of pets.
+
+```bash
+./consumer --start
+```
+This will start the elevator. It can now be observed moving in the terminal executing `watch`.
+
+```bash
+./consumer --stop
+```
+This will stop the elevator, and it will go offline.
+
+```bash
+sudo rmmod src/elevator.ko
+```
+This will unload the elevator module and delete the proc file `elevator`.
 
 ## Development Log
 
@@ -87,12 +171,14 @@ This will run the program.
 | 2026-10-28 | [Debugged part 2, found out it was an issue with the return val: proc read executes until return val is 0]  |
 | 2026-10-29 | [Began work on elevator.c]  |
 | 2026-10-30 | [Implemented syscalls from syscalls.c in the elevator.c program and their consumer/producer operations, as well as procfile reads, linked list, mutex, elevator module structure and exit function with cleanup. Should be able to pick up proj and continue in any direction.]  |
+| 2026-11-2 | [Created Makefiles for each part]  |
 
 ### [Travern Martini]
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
-| XXXX-XX-XX | [item]  |
+| 2026-10-28 | [Wrote file for system calls]  |
+| 2026-10-28 | [Added proper files for kernel configuration, kernel successfully compiled with added calls]  |
 
 
 ### [Alexey Cherepanov]
@@ -112,6 +198,4 @@ Document in-person meetings, their purpose, and what was discussed.
 
 
 ## Bugs
-- **Bug 1**:
-- **Bug 2**: 
-- **Bug 3**: 
+No known bugs
