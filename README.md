@@ -54,7 +54,7 @@ COP4610-Project2/
 │
 └── README.md
 ```
-<!-- ## How to Compile & Execute
+## How to Compile & Execute
 
 ### Requirements
 - **Compiler**: gcc
@@ -73,7 +73,7 @@ OR
 ```bash
 ./bin/shell
 ```
-This will run the program. -->
+This will run the program.
 
 ## Development Log
 

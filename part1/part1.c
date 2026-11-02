@@ -5,10 +5,9 @@ int main() {
     getppid();
 
     const char *msg = "Hello from write()\n";
-    write(1, msg, 18);
+    write(1, msg, 19);
 
-    char buffer[50];
-    ssize_t bytes = read(0, buffer, sizeof(buffer)-1);
+    getuid();
 
     close(2);  
 
