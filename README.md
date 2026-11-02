@@ -185,7 +185,9 @@ This will unload the elevator module and delete the proc file `elevator`.
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
-| XXXX-XX-XX | [item]  |
+| 2026-10-27 | worked on kthread  |
+| 2026-10-29 | worked on scheduling algorithm, added small features like makefile and .gitignore  |
+| 2026-10-30 | continued working on scheduling  |
 
 
 ## Meetings
