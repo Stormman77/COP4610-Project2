@@ -46,7 +46,7 @@ static ssize_t timer_read(struct file* file, char * ubtf, size_t count, loff_t *
                 elapsed_nsec += 1000000000L;
             }
 
-            len += scnprintf(msg + len, 256 - len, "elapsed time: %lld.%09ld seconds\n",
+            len += scnprintf(msg + len, 256 - len, "elapsed time: %lld.%09ld\n",
                             elapsed_sec, elapsed_nsec);
     }
     else first_read = false;
