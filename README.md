@@ -122,7 +122,7 @@ This will unload the kernel module and delete the proc file `timer`.
 ```bash
 make
 ```
-This will build the kernel module with the directory `/src/elevator.ko` and the executables `consumer` and `producer` in the current directory, for easy execution.
+This will build the kernel module with the directory `/src/elevator.ko` and the executables `consumer` and `producer` in the part3 directory, for easy execution.
 
 ### Execution
 This process already assumes the proper installation and compilation of the Linux-6.16.12 kernel, modified to support the system calls seen in syscalls.c. Ensure the machine has booted the proper kernel before proceeding.
@@ -172,6 +172,7 @@ This will unload the elevator module and delete the proc file `elevator`.
 | 2026-10-29 | [Began work on elevator.c]  |
 | 2026-10-30 | [Implemented syscalls from syscalls.c in the elevator.c program and their consumer/producer operations, as well as procfile reads, linked list, mutex, elevator module structure and exit function with cleanup. Should be able to pick up proj and continue in any direction.]  |
 | 2026-11-2 | [Created Makefiles for each part]  |
+| 2026-11-4 | [Fixed minor Makefile bug in part3]  |
 
 ### [Travern Martini]
 
