@@ -23,7 +23,7 @@
 - **Assigned to**: Travern Martini
 
 ### Part 3C: Threads
-- **Responsibilities**: 
+- **Responsibilities**: Run the elevator in a kernel thread
 - **Assigned to**: Alexey Cherepanov
 
 ### Part 3D: Linked List
@@ -35,7 +35,7 @@
 - **Assigned to**: Devan Erle
 
 ### Part 3F: Scheduling Algorithm
-- **Responsibilities**:
+- **Responsibilities**: Implement a scheduling algorithm for the elevator module
 - **Assigned to**: Alexey Cherepanov
 
 ## File Listing
