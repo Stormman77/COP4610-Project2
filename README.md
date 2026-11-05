@@ -16,11 +16,11 @@
 
 ### Part 3A: Adding System Calls
 - **Responsibilities**: Create a .C file that defines three new system calls `start_elevator()`, `issue_request()`, and `stop_elevator()`
-- **Assigned to**: Travern Martini
+- **Assigned to**: Traven Martini
 
 ### Part 3B: Kernel Compilation
 - **Responsibilities**: Configure the kernel for Linux-6.16.12 with the new system calls. Compile the kernel, and document the steps taken.
-- **Assigned to**: Travern Martini
+- **Assigned to**: Traven Martini
 
 ### Part 3C: Threads
 - **Responsibilities**: Run the elevator in a kernel thread
@@ -174,7 +174,7 @@ This will unload the elevator module and delete the proc file `elevator`.
 | 2026-11-2 | [Created Makefiles for each part]  |
 | 2026-11-4 | [Fixed minor Makefile bug in part3]  |
 
-### [Travern Martini]
+### [Traven Martini]
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
@@ -196,7 +196,7 @@ Document in-person meetings, their purpose, and what was discussed.
 
 | Date       | Attendees            | Topics Discussed | Outcomes / Decisions |
 |------------|----------------------|------------------|-----------------------|
-| 2026-10-12 | [Alexey Cherepanov, Travern Martini, Devan Erle]              | Project requirements   | Timeline/Division of Labor  |
+| 2026-10-12 | [Alexey Cherepanov, Traven Martini, Devan Erle]              | Project requirements   | Timeline/Division of Labor  |
 
 
 
