@@ -246,12 +246,6 @@ static ssize_t elevator_read(struct file* file, char *ubtf, size_t count, loff_t
                         num_pets_waiting);
    len += scnprintf(msg + len, BUFF_LEN - len, "Number of pets serviced: %d\n",
                         total_pets_serviced);
-  
-   // msg_len = len;
-   // *ppos = msg_len;
-
-
-   // mutex_unlock(&elevator_lock);
 
    //copy out while still holding the lock to avoid msg overwrites mid-copy
    if (count < len)

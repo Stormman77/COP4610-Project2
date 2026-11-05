@@ -11,5 +11,4 @@ all:
 
 clean:
 	$(MAKE) -C $(KDIR) M=$(CURDIR)/src clean
-	rm producer
-	rm consumer
+	-rm producer consumer

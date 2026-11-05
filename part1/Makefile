@@ -10,4 +10,4 @@ trace: all
 	strace -o part1.trace ./part1
 
 clean:
-	rm empty part1
+	-rm empty part1

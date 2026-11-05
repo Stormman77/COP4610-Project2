@@ -200,5 +200,5 @@ Document in-person meetings, their purpose, and what was discussed.
 
 
 
-## Bugs
-No known bugs
+## Notes
+Though running `make` from the root directory successfully builds all files in the appropriate directories, there is not much utility and it is recommended to instead `cd` into a part's directory and then run that part's `make` command.

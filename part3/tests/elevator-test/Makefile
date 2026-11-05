@@ -9,4 +9,4 @@ producer: producer.c wrappers.h
 .PHONY: all run clean
 
 clean:
-	rm producer consumer
+	-rm producer consumer
